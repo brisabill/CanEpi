@@ -360,5 +360,26 @@ for (cc in country_list) {
   )
 }
 
+# ---- PDF helper: render ONE country on demand ----
+pdfReport <- function(cc,
+                      out_dir = "pdf_reports",
+                      input_rmd = "country_report.Rmd") {
+  cc <- as.integer(cc)
+  if (is.na(cc)) stop("cc must be a numeric country_code (e.g., 300).")
+  
+  dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+  
+  # fresh env so each render is isolated (same behavior as your loop)
+  e <- new.env(parent = globalenv())
+  
+  rmarkdown::render(
+    input = input_rmd,
+    output_file = file.path(out_dir, paste0("country_", cc, ".pdf")),
+    params = list(cc = cc),
+    envir = e
+  )
+}
+
+
 
 
