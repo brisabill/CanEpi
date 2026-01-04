@@ -1,0 +1,180 @@
+---
+title: "Country Report"
+output:
+  pdf_document:
+    latex_engine: xelatex
+params:
+  cc: NULL
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, results = 'asis', comment = NA)
+library(dplyr)
+library(stringr)
+
+if (!exists('df_models_dict', inherits = TRUE))    df_models_dict    <- read.csv('df_models_dict.csv', stringsAsFactors = FALSE)
+if (!exists('df_models_results', inherits = TRUE)) df_models_results <- read.csv('df_models_results.csv', stringsAsFactors = FALSE)
+if (!exists('df_alt_text', inherits = TRUE))      df_alt_text       <- read.csv('alt_text.csv', stringsAsFactors = FALSE)
+if (!exists('df_coeff_text', inherits = TRUE))    df_coeff_text     <- read.csv('coeff_text.csv', stringsAsFactors = FALSE)
+
+cc <- params$cc
+meta <- df_models_dict %>%
+  filter(country_code == cc) %>%
+  summarise(
+    country_label = dplyr::first(country_label),
+    region = suppressWarnings(dplyr::first(region)),
+    .groups = 'drop'
+  )
+country_label <- meta$country_label
+region <- meta$region
+```
+
+```{r helpers}
+tex_escape <- function(x) {
+  x <- as.character(x)
+  str_replace_all(x, '([_&%$#{}~^\\\\])', '\\\\\\\\1')
+}
+
+fmt_pop <- function(x) {
+  x <- x[!is.na(x)]
+  if (!length(x)) return(NA_character_)
+  as.character(signif(x[1], 6))
+}
+
+format_labels_periods <- function(df) {
+  df <- df %>%
+    mutate(id_label = as.character(id_label), period = as.character(period)) %>%
+    filter(!is.na(id_label), id_label != '') %>%
+    mutate(period2 = ifelse(is.na(period) | period == '', NA_character_, period))
+  if (!nrow(df)) return(NA_character_)
+
+  grouped <- df %>%
+    group_by(period2) %>%
+    summarise(labels = str_c(unique(id_label), collapse = ', '), .groups = 'drop')
+
+  parts <- vapply(seq_len(nrow(grouped)), function(i) {
+    p <- grouped$period2[i]
+    labs <- grouped$labels[i]
+    if (is.na(p) || p == '') labs else str_c(labs, ' (', p, ')')
+  }, character(1))
+
+  str_c(parts, collapse = '; ')
+}
+
+get_main_method_pop <- function(idx) {
+  ds_main <- df_models_results %>%
+    filter(country_code == cc, index == idx, (is.na(alt) | alt == ''))
+  list(
+    method = ds_main %>% pull(method) %>% na.omit() %>% dplyr::first(),
+    pop    = ds_main %>% pull(pop_coverage) %>% na.omit() %>% dplyr::first()
+  )
+}
+
+build_method_line <- function(idx, label_prefix) {
+  mp <- get_main_method_pop(idx)
+  m <- mp$method
+  p <- mp$pop
+  parts <- character(0)
+  if (!is.null(m) && !is.na(m)) parts <- c(parts, paste0(tolower(label_prefix), ' method: **', m, '**'))
+  if (!is.null(p) && !is.na(p)) parts <- c(parts, paste0('pop_coverage: **', fmt_pop(p), '**'))
+  if (!length(parts)) return('')
+  paste0(paste(parts, collapse = '   '), '\n\n')
+}
+
+build_except_md <- function(idx) {
+  ex <- df_alt_text %>% filter(country_code == cc, index == idx) %>% arrange(alt)
+  if (!nrow(ex)) return('')
+  lines <- c('**Except:**\n')
+  for (i in seq_len(nrow(ex))) {
+    a <- tex_escape(ex$alt[i])
+    lines <- c(lines, paste0('- ', a, ': ', ex$col1[i]))
+  }
+  paste0(paste(lines, collapse = '\n'), '\n\n')
+}
+
+build_sources_md <- function(idx, title) {
+  ds <- df_models_results %>%
+    filter(country_code == cc, index == idx) %>%
+    mutate(
+      chunk = if ('chunk' %in% names(.)) as.character(chunk) else NA_character_,
+      chunk = ifelse(is.na(chunk) | chunk == '' | chunk == '.root', '.root', chunk),
+      alt2  = ifelse(is.na(alt) | alt == '', 'main', alt)
+    )
+
+  if (!nrow(ds)) return('')
+
+  alt_meta <- ds %>%
+    group_by(alt2) %>%
+    summarise(
+      method = suppressWarnings(dplyr::first(na.omit(method))),
+      pop_coverage = suppressWarnings(dplyr::first(na.omit(pop_coverage))),
+      .groups = 'drop'
+    )
+
+  ds2 <- ds %>%
+    group_by(alt2, chunk) %>%
+    summarise(text = format_labels_periods(dplyr::pick(id_label, period)), .groups = 'drop') %>%
+    filter(!is.na(text), text != '') %>%
+    arrange(alt2, chunk)
+
+  out <- character(0)
+
+  # NO underlines: just bold heading
+  out <- c(out, paste0('**', title, '**\n'))
+
+  for (a in unique(ds2$alt2)) {
+    m <- alt_meta %>% filter(alt2 == a) %>% pull(method) %>% dplyr::first()
+    p <- alt_meta %>% filter(alt2 == a) %>% pull(pop_coverage) %>% dplyr::first()
+
+    meta_bits <- character(0)
+    if (!is.na(m)) meta_bits <- c(meta_bits, paste0('method: ', m))
+    if (!is.na(p)) meta_bits <- c(meta_bits, paste0('pop_coverage: ', fmt_pop(p)))
+    meta_txt <- if (length(meta_bits)) paste0(' (', paste(meta_bits, collapse = ' | '), ')') else ''
+
+    out <- c(out, paste0('\n**', tex_escape(a), ':**', meta_txt))
+
+    sub <- ds2 %>% filter(alt2 == a)
+    for (j in seq_len(nrow(sub))) {
+      ch <- tex_escape(sub$chunk[j])
+      out <- c(out, paste0('\n*', ch, '*: ', sub$text[j], '\n'))
+    }
+    out <- c(out, '\n')
+  }
+
+  paste0(paste(out, collapse = '\n'), '\n')
+}
+```
+
+```{r header, results='asis'}
+# BIG title = country name, centered, and NO horizontal rules
+ttl <- tex_escape(country_label)
+cat(paste0(
+  '\\begin{center}\n',
+  '{\\Huge\\bfseries ', ttl, '}\n',
+  '\\end{center}\n\n'
+))
+
+# keep metadata lines (no lines/underlines)
+if (!is.na(region)) cat(paste0('Area Number: ', region, '\\\n'))
+cat(paste0('UN Country Number: ', cc, '\\\n\n'))
+```
+
+```{r incidence_block, results='asis'}
+cat('## **Incidence Data**\n\n')
+cat(build_method_line('incidence', 'Incidence'))
+cat(build_except_md('incidence'))
+cat(build_sources_md('incidence', 'Incidence data sources (per alt):'))
+
+ct <- df_coeff_text %>% filter(country_code == cc, index == 'incidence')
+if (nrow(ct) > 0) cat(paste0('**Coeff:** ', ct$col1[1], '\n\n'))
+```
+
+```{r mortality_block, results='asis'}
+cat('## **Mortality Data**\n\n')
+cat(build_method_line('mortality', 'Mortality'))
+cat(build_except_md('mortality'))
+cat(build_sources_md('mortality', 'Mortality data sources (per alt):'))
+
+ct <- df_coeff_text %>% filter(country_code == cc, index == 'mortality')
+if (nrow(ct) > 0) cat(paste0('**Coeff:** ', ct$col1[1], '\n\n'))
