@@ -4,23 +4,20 @@ This repository provides R utilities to **map**, **compare**, and **clean** `alt
 
 ---
 ```r
-source("altClean.R")
+source("altCode.R")
 
-# # 1) Run full mapping and export CSVs
-# out <- run_alt_mapping(cfg$dict_dir, cfg$result_dir, export_csv = TRUE)
-View(out$dict_wide)
-View(out$dict_long)
-View(out$result_compare)
-# 
-# # 2) Single-country report + dry-run delete listing
-altClean(630, dict_dir = cfg$dict_dir, result_dir = cfg$result_dir, delete = FALSE)
-# 
-# # 3) Actually delete (be careful)
-altClean(630, dict_dir = cfg$dict_dir, result_dir = cfg$result_dir, delete = TRUE)
+# If delete = FALSE, then it will only list what files (with directory path) will be deleted
+# Usage:
+altClean(188, delete = FALSE)
+# altClean(188, delete = TRUE)
+
 ```
 
+---
+```r
+source("code_data_estraction.R")
 # JSON extraction + country PDF reporting (R)
 
-This script extracts model metadata and data-source information
+This script extracts model metadata and data-source information, it is dependent on the .Rmd file for pdf generation
 
 ---
