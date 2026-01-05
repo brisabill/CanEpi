@@ -33,7 +33,8 @@ countryReport (76, print = FALSE)
 # Plot pf population pyramid
 ---
 ```r
+source("plot_population_pyramid.R")
 #Usage
-plot_population_pyramid(250)
+pop_pyramid(250)
 ---
 ```
