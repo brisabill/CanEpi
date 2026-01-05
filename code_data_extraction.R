@@ -192,32 +192,36 @@ extract_alt_source <- function(path) {
   }
   
   ds_tbl <- purrr::imap_dfr(ds_list, ~ tibble::as_tibble(.x) %>% mutate(chunk = .y))
+  ds <- ds_tbl
   
   # pick inc_source vs mort_source depending on index
-  src_col <- if (index == "incidence") "inc_source" else "mort_source"
+ src_col <- if (index == "incidence") "inc_source" else "mort_source"
   
-  # safe getter (vector of correct length, or NA)
-  colv <- function(nm) if (nm %in% names(ds_tbl)) ds_tbl[[nm]] else rep(NA, nrow(ds_tbl))
-  
-  out <- ds_tbl %>%
+  as_tibble(ds) %>%
     transmute(
       id_code  = suppressWarnings(as.numeric(dplyr::coalesce(
-        colv("id_code"), colv("id"), colv("code")
+        if ("id_code" %in% names(.)) .data$id_code else NA_real_,
+        if ("id"      %in% names(.)) .data$id      else NA_real_,
+        if ("code"    %in% names(.)) .data$code    else NA_real_
       ))),
       id_label = as.character(dplyr::coalesce(
-        colv("id_label"), colv("label"), colv("registry"), colv("name")
+        if ("id_label" %in% names(.)) .data$id_label else NA_character_,
+        if ("label"    %in% names(.)) .data$label    else NA_character_,
+        if ("registry" %in% names(.)) .data$registry else NA_character_,
+        if ("name"     %in% names(.)) .data$name     else NA_character_
       )),
-      source   = as.character(dplyr::coalesce(
-        colv(src_col), colv("source"), colv("src")
+      source = as.character(dplyr::coalesce(
+        if (src_col   %in% names(.)) .data[[src_col]] else NA_character_,
+        if ("source"  %in% names(.)) .data$source     else NA_character_,
+        if ("src"     %in% names(.)) .data$src        else NA_character_
       )),
-      period   = as.character(dplyr::coalesce(
-        colv("period"), colv("years"), colv("year_range")
-      )),
-      chunk    = as.character(colv("chunk"))
+      period = as.character(dplyr::coalesce(
+        if ("period"     %in% names(.)) .data$period     else NA_character_,
+        if ("years"      %in% names(.)) .data$years      else NA_character_,
+        if ("year_range" %in% names(.)) .data$year_range else NA_character_
+      ))
     ) %>%
-    distinct(id_code, id_label, source, period, chunk, .keep_all = FALSE)
-  
-  bind_cols(out, base[rep(1, nrow(out)), ])
+    bind_cols(., base[rep(1, nrow(.)), ])
   
 }
 
@@ -454,5 +458,6 @@ countryReport <- function(cc,
   
   invisible(pdf_path)
 }
+
 
 
