@@ -6,7 +6,7 @@ library(ggplot2)
 # Plot population pyramid by ONLY country code
 # - Works with: plot_population_pyramid(76), plot_population_pyramid("76"), plot_population_pyramid("076")
 # - Auto-detects: correct base dir (result/), region folder (06/07/08...), and exact file name (76p.csv or 076p.csv)
-plot_population_pyramid <- function(ccode,
+pop_pyramid <- function(ccode,
                                    results_dir = "C:/Users/mirandaa/Desktop/estican/estican/result",
                                     global_pop_file = "//inti/CIN/DataShare/Globocan2022/source/population.csv",
                                     year_model = 2022, year_pop = 2024) {
@@ -157,3 +157,4 @@ plot_population_pyramid <- function(ccode,
   print(p)
   invisible(p)
 }
+
