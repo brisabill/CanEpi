@@ -1,4 +1,18 @@
-#Creation of country reports and pdf export
+# Mapping of alts and deletion of unused files
+
+This repository provides R utilities to **map**, **compare**, and **clean** `alt` JSON files.
+---
+```r
+source("altCode.R")
+
+# If delete = FALSE, then it will only list what files (with directory path) will be deleted
+# Usage:
+altClean(188, delete = FALSE)
+# altClean(188, delete = TRUE)
+
+```
+
+# Creation of country reports and pdf export
 
 This script extracts data and exports into a pdf file or prints info directly in the R console. It is dependent on the .Rmd file. It will create a folder named pdf_reports and place the created files within it
 
@@ -13,17 +27,4 @@ pdfReport(76)
 countryReport (76)
 ---
 ```
----
-# Mapping of alts and deletion of unused files
 
-This repository provides R utilities to **map**, **compare**, and **clean** `alt` JSON files.
----
-```r
-source("altCode.R")
-
-# If delete = FALSE, then it will only list what files (with directory path) will be deleted
-# Usage:
-altClean(188, delete = FALSE)
-# altClean(188, delete = TRUE)
-
-```
