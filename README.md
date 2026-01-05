@@ -1,7 +1,22 @@
-# Mapping alt JSON
+#Creation of country reports and pdf export
+
+This script extracts data and exports into a pdf file or prints info directly in the R console. It is dependent on the .Rmd file. It will create a folder named pdf_reports and place the created files within it
+
+---
+```r
+source("code_data_estraction.R")
+
+#Usage:
+pdfReport(76)
+
+#Usage:
+countryReport (76)
+---
+
+---
+# Mapping of alts and deletion of unused files
 
 This repository provides R utilities to **map**, **compare**, and **clean** `alt` JSON files.
-
 ---
 ```r
 source("altCode.R")
@@ -12,14 +27,3 @@ altClean(188, delete = FALSE)
 # altClean(188, delete = TRUE)
 
 ```
-
----
-```r
-source("code_data_estraction.R")
-# JSON extraction + country PDF reporting (R)
-
-This script extracts model metadata and data-source information, it is dependent on the .Rmd file for pdf generation, it will create a folder named pdf_reports and place the created files within it
-# Usage:
-pdfReport(76)
-
----
