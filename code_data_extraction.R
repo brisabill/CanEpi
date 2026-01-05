@@ -10,6 +10,7 @@ library (purrr)
 library (tinytex)
 
 setwd("C:/Users/mirandaa/Desktop/estican/estican/dict")
+OUT_DIR <- "C:/Users/mirandaa/Desktop/estican/estican/other/Reports"
 
 #Load dictionaries
 dict_cancer <- read.delim("dictionaries/dict_cancer.csv", sep = ",", stringsAsFactors = TRUE) %>%
@@ -364,7 +365,7 @@ for (cc in country_list) {
 
 # ---- PDF helper: render ONE country on demand ----
 pdfReport <- function(cc,
-                      out_dir = "pdf_reports",
+                      out_dir = OUT_DIR,
                       input_rmd = "country_report.Rmd") {
   cc <- as.integer(cc)
   if (is.na(cc)) stop("cc must be a numeric country_code (e.g., 300).")
@@ -415,7 +416,7 @@ consoleReport <- function(cc, rmd = "country_report.Rmd") {
 
 countryReport <- function(cc,
                    print = TRUE,
-                   out_dir = "pdf_reports",
+                   out_dir = OUT_DIR,
                    rmd = "country_report.Rmd") {
   cc <- as.integer(cc)
   if (is.na(cc)) stop("cc must be numeric (e.g., 300).")
@@ -453,3 +454,4 @@ countryReport <- function(cc,
   
   invisible(pdf_path)
 }
+
