@@ -386,7 +386,7 @@ pdfReport <- function(cc,
 pdfReport(76)
 
 #Function to print same info asd ithe pdf but directly in the R console
-countryReport <- function(cc, rmd = "country_report.Rmd") {
+consoleReport <- function(cc, rmd = "country_report.Rmd") {
   cc <- as.integer(cc)
   if (is.na(cc)) stop("cc must be numeric")
   
@@ -409,7 +409,47 @@ countryReport <- function(cc, rmd = "country_report.Rmd") {
 
 
 #Usage:
-#countryReport(76)
+#consoleReport(76)
 
+#wraping function to create together both pdf and optional pdf report
 
-
+countryReport <- function(cc,
+                   print = TRUE,
+                   out_dir = "pdf_reports",
+                   rmd = "country_report.Rmd") {
+  cc <- as.integer(cc)
+  if (is.na(cc)) stop("cc must be numeric (e.g., 300).")
+  
+  dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+  pdf_path <- file.path(out_dir, paste0("country_", cc, ".pdf"))
+  
+  # fresh env (same behavior as your loop)
+  e <- new.env(parent = globalenv())
+  
+  # 1) Always render PDF
+  rmarkdown::render(
+    input = rmd,
+    output_file = pdf_path,
+    params = list(cc = cc),
+    envir = e,
+    quiet = TRUE
+  )
+  
+  # 2) Optional: print same report to console
+  if (isTRUE(print)) {
+    tmp_md <- tempfile(fileext = ".md")
+    
+    rmarkdown::render(
+      input = rmd,
+      output_format = "md_document",
+      output_file = tmp_md,
+      params = list(cc = cc),
+      envir = e,
+      quiet = TRUE
+    )
+    
+    cat(paste(readLines(tmp_md, warn = FALSE), collapse = "\n"))
+  }
+  
+  invisible(pdf_path)
+}
