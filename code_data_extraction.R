@@ -9,7 +9,7 @@ library (knitr)
 library (purrr)
 library (tinytex)
 
-setwd("C:/Users/brisa/Documents/code_data_extraction")
+setwd("C:/Users/mirandaa/Desktop/estican/estican/dict")
 
 #Load dictionaries
 dict_cancer <- read.delim("dictionaries/dict_cancer.csv", sep = ",", stringsAsFactors = TRUE) %>%
@@ -410,5 +410,6 @@ countryReport <- function(cc, rmd = "country_report.Rmd") {
 
 #Usage:
 #countryReport(76)
+
 
 
