@@ -27,7 +27,21 @@ pdfReport(76)
 consoleReport (76)
 
 #Usage:
-countryReport (76, print = FALSE)
+# One country (PDF only):
+countryReport(76)
+
+# One country + print to console:
+countryReport(76, print = TRUE)
+
+# All countries (PDFs only):
+countryReport(all = TRUE)
+
+# All countries (PDFs) + console:
+countryReport(all = TRUE, print = TRUE)
+
+# Also:
+countryReport("all")
+
 ---
 ```
 # Plot pf population pyramid
