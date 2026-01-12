@@ -33,6 +33,7 @@ dict_country <- read.delim(DICT_COUNTRY, sep = ",", stringsAsFactors = FALSE) %>
 dict_icd_map <- read.delim(DICT_ICD_MAP, sep = ",", stringsAsFactors = FALSE)
 
 
+#-------Crating the function
 
 ageCheck <- function(cc) {
   
