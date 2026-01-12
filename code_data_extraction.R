@@ -9,7 +9,7 @@ library(knitr)
 library(tinytex)
 
 # ----Setting directories ---------
-ESTICAN_ROOT <- "C:/Users/mirandaa/Desktop/estican"  
+ESTICAN_ROOT <- "C:/Users/mirandaa/Project/estican"  
 
 DICT_DIR   <- fs::path(ESTICAN_ROOT, "dict")
 RESULT_DIR <- fs::path(ESTICAN_ROOT, "result")
@@ -442,4 +442,5 @@ countryReport <- function(cc = NULL,
 
   invisible(p)
 }
+
 
