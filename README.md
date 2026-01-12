@@ -52,7 +52,7 @@ source("plot_population_pyramid.R")
 pop_pyramid(250)
 ---
 ```
-# Incidence rate
+# To age specifi incidence rates for Chilhood cancer
 
 ---
 ```r
