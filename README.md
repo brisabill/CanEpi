@@ -52,11 +52,11 @@ source("plot_population_pyramid.R")
 pop_pyramid(250)
 ---
 ```
-# To age specifi incidence rates for Chilhood cancer
+# To age specifiC incidence rates for Chilhood cancer
 
 ---
 ```r
-source ("pop_inc.R)
+source("pop_inc.R")
 #Usage:
 
 ageCheck(76)               # just tables
