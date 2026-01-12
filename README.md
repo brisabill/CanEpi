@@ -52,3 +52,13 @@ source("plot_population_pyramid.R")
 pop_pyramid(250)
 ---
 ```
+# Incidence rate
+
+---
+```r
+source ("pop_inc.R)
+#Usage
+ageCheck (76)
+---
+```
+
