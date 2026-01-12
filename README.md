@@ -57,7 +57,8 @@ pop_pyramid(250)
 ---
 ```r
 source ("pop_inc.R)
-#Usage
+#Usage:
+
 ageCheck(76)               # just tables
 ageCheck(724, TRUE, 2022)  # tables + comparison
 ---
