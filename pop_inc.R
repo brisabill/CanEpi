@@ -7,6 +7,10 @@ library(fs)
 library(rmarkdown)
 library(knitr)
 library(tinytex)
+library(readr)
+library(dplyr)
+library(fs)
+
 
 # ----Setting directories ---------
 ESTICAN_ROOT <- "C:/Users/mirandaa/Project/estican"  
@@ -161,3 +165,4 @@ ageCheck <- function(cc) {
   
   invisible(merged)
 }
+
